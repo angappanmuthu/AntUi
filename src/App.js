@@ -16,19 +16,22 @@ function App() {
       setAccess(res.data.status)
     })
     .catch(err => console.log(err));
-    
+
   },[]);
     return (
       <Router>
       <div className="App">
-       {/* <ul className="App-header">
+       <ul className="App-header">
          <li>
            <Link to="/">Home</Link>
          </li>
          <li>
-           <Link to="/dashboard">About Us</Link>
+           <Link to="/dashboard">Dashboard</Link>
          </li>
-       </ul> */}
+         <li>
+           <Link to="/login">Login</Link>
+         </li>
+       </ul>
       {
         access ? 
         <Routes>
