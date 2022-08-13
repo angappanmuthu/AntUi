@@ -8,19 +8,34 @@ function Login() {
 
     const [data,setData] = useState({
         username : "",
-        password : ""
+        password : "",
     });
+
+    const [motor_status,setMotorStatus] = useState(false);
 
     const handleChange = (e) => setData({...data,[e.target.name] : e.target.value});
 
     const loginButton = (e) => {
         e.preventDefault();
-        axios.post(`${process.env.REACT_APP_BASE_URL}/api/is_user`,data).then(res => {
-            setNav(true);
+        axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`,{
+            headers: {
+            "Access-Control-Allow-Origin" : "*",
+            "Content-type": "Application/json",
+            "Authorization": `token ${localStorage.getItem('token')}`
+            },
+            body : data,
+        }).then(res => {
+            if (res.data.status) {
+                localStorage.setItem('token',res.data['token'])
+                setNav(res.data.status);
+                setMotorStatus(res.data.data[0].motor_access)
+                localStorage.setItem('is_motor_allowed',res.data.data[0].motor_access)
+                console.log(res.data)
+            }
         }).catch(err => console.log(err));
     }
 
-    return nav ? <Navigate to={'/dashboard'} /> :(
+    return /*nav ? <Navigate to={'/dashboard'} /> : */ (
         <div>
             <form onSubmit={loginButton}>
                 <input type="text" placeholder='username' name="username" value ={data.username} onChange={handleChange}/>

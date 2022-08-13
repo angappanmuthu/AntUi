@@ -4,7 +4,7 @@ import {Chart as ChartJS} from 'chart.js/auto'
 
 function BarChart({chartData}) {
   return (
-    <div style={{width : 1000}}>
+    <div>
       <Line data={chartData} options={{
         scales : {
           y : {

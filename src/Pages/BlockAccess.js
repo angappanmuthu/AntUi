@@ -2,7 +2,7 @@ import React from 'react'
 
 function BlockAccess() {
   return (
-    <div>BlockAccess</div>
+    <div></div>
   )
 }
 

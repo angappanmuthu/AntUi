@@ -1,10 +1,14 @@
 import BarChart from "../components/BarChart";
 import {useEffect, useState} from 'react'
 import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
+import NavBar from "../components/NavBar";
 
 function Dashboard() {
 
   const [sensorData,setSensorData] = useState();
+
+  const token = localStorage.getItem('token')
 
   const [devices,setDevices] = useState([]);
 
@@ -12,20 +16,52 @@ function Dashboard() {
 
   const [rdevice,setRdevice] = useState("");
 
-  let clear;
+  const [status,setStatus] = useState(false);
+
+  const navigate = useNavigate();
+
+  const redirect = () => navigate('/login');
+
+  const get_status = () => axios.post(`${process.env.REACT_APP_BASE_URL}/api/motor_status`,{"motor_label" : "Motor"})
+  .then(res => {
+    setStatus(res.data[0].motor_status)
+    console.log(res.data)
+    console.log("motor |")
+  })
+  .catch(err => console.log(err));
 
   const handleChange = (e) => {
     setDevice(e.target.value);
   };
 
-  const get_devices = () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/devices/`)
-  .then(res => setDevices(res.data)).catch(err => console.log(err));
+  const get_devices = () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/devices`,{
+    headers: {
+      // 'Access-Control-Allow-Origin' : '*',
+      "Content-type": "Application/json",
+      "Authorization": `token ${token}`
+      },
+  },
+  { withCredentials: true },
+  )
+  .then(res => {
+    setDevices(res.data);
+  }).catch(err => console.log(err));
 
-  const refresh = () => axios.post(`${process.env.REACT_APP_BASE_URL}/api/device_log`,{device_id : device})
+  const refresh = () => axios.post(`${process.env.REACT_APP_BASE_URL}/api/device_log`,{
+    device_id : device
+  },
+  {
+    headers: {
+      "Content-type": "Application/json",
+      "Authorization": `token ${token}`
+      },
+  },
+  { withCredentials: true },
+  )
   .then(res => {
     setRdevice(res.data[0].device_id.device);
     setSensorData({
-      labels : res.data.map(e => e.id),
+      labels : res.data.map(e => new Date(e.created_at).toLocaleString()),
       datasets : [{
         label : "Temperature",
         data : res.data.map(e => parseFloat(e.temperature)),
@@ -84,31 +120,73 @@ function Dashboard() {
   })
   .catch(err => console.log(err));
 
-  useEffect (() => {
-    get_devices(); 
-  },[]);
-
 
   const onSubmit = (e) => {
     e.preventDefault();
     refresh();
   }
+
+  const onTap = (e) => {
+    e.preventDefault();
+    alert(`Sure to Trun ${!status ? "ON" : "OFF"} Motor!`);
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/motor_control`,{"motor_label" : "Motor","motor_status" : !status})
+    .then(res => setStatus(!status))
+    .catch(err => console.log(err));
+  }
+
+  useEffect (() => {
+    get_devices(); 
+    get_status();
+    if (!localStorage.getItem('token')) {
+        redirect();
+    }
+  },[]);
  
   return (
     <div className="App">
-      <form>
+      <NavBar />
+      <div className="flex">
+      <form className="flex m-10">
         {devices ? 
-        <select onChange={(e) => {handleChange(e);}} value={device}>
+        <select className="form-select appearance-none
+        block
+        w-40
+        px-3
+        py-1.5
+        text-base
+        font-normal
+        text-gray-700
+        bg-white bg-clip-padding bg-no-repeat
+        border border-solid border-gray-300
+        rounded
+        transition
+        ease-in-out
+        m-0
+        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" onChange={(e) => {handleChange(e);}} value={device}>
           <option selected hidden>Select Device</option>
           {devices.map(e => <option value={e}>{e}</option>)}
         </select> 
         : ""}
-        <input type='submit' value="Show" onClick={onSubmit}/>
+
+        <input className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded" type='submit' value="Show" onClick={onSubmit}/>
+
+    
       </form>
 
-      <p>{`You selected ${rdevice}`}</p>
+      <div className="flex m-10">
+      <p className="py-2 text-sm"></p> Motor Status {JSON.parse(localStorage.getItem('is_motor_allowed')) === true ? <input type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" value={status ? "ON" : "OFF"} onClick={onTap}/> : ""}
+      </div>
+      </div>
+
+     
+
+
+      <p className="m-10">{`You selected ${rdevice}`}</p>
       
-      {sensorData ? <BarChart chartData={sensorData} /> : ""}
+      {sensorData ? <div className="justify-center pb-36">
+        <BarChart chartData={sensorData} />
+      </div> : ""}
+      
     </div>
   );
 }
