@@ -2,6 +2,7 @@ import React,{useEffect, useState} from 'react';
 import { CSVLink, CSVDownload } from "react-csv";
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom'
+import API from '../api'
 
 function Csv() {
 
@@ -12,7 +13,7 @@ function Csv() {
 
     const refresh = () => 
     axios.get(
-      `${process.env.REACT_APP_BASE_URL}/api/log`,
+      `${API}/api/log`,
       {headers: {
               "Content-type": "Application/json",
               "Authorization": `token ${token}`

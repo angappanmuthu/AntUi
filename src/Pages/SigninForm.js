@@ -4,6 +4,7 @@ import Button from '../components/Button'
 import { Styles } from '../components/Styles'
 import axios from 'axios'
 import NavBar from '../components/NavBar'
+import API from '../api'
 
 const SigninForm = () => {
 
@@ -20,7 +21,8 @@ const SigninForm = () => {
 
     const loginButton = (e) => {
       e.preventDefault();
-      axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`,data).then(res => {
+      console.log(API);
+      axios.post(`${API}/api/login`,data).then(res => {
           if (res.data.status) {
               console.log('token',res.data)
               console.log(data);

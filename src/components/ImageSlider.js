@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai'
+import NavBar from './NavBar'
+
 const img = [
   'img/slider_images/img1.jpg',
   'img/slider_images/img2.jpg',
@@ -48,12 +50,13 @@ export default function ImageSlider() {
   }
   return (
    <div className="">
+    <NavBar />
       <div ref={sliderRef} className="select-none relative bg-black">
       <div className="flex">
         <div className="w-full">
         <img
         src={img[currentIndex]}
-        className="h-auto w-full object-cover px-36"
+        className="w-full object-cover md:px-36 h-96"
       />
         </div>
        </div>

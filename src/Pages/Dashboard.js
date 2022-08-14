@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import NavBar from "../components/NavBar";
+import API from '../api'
 
 function Dashboard() {
 
@@ -22,7 +23,7 @@ function Dashboard() {
 
   const redirect = () => navigate('/login');
 
-  const get_status = () => axios.post(`${process.env.REACT_APP_BASE_URL}/api/motor_status`,{"motor_label" : "Motor"})
+  const get_status = () => axios.post(`${API}/api/motor_status`,{"motor_label" : "Motor"})
   .then(res => {
     setStatus(res.data[0].motor_status)
     console.log(res.data)
@@ -145,7 +146,7 @@ function Dashboard() {
   return (
     <div className="App">
       <NavBar />
-      <div className="flex">
+      <div className="flex flex-wrap">
       <form className="flex m-10">
         {devices ? 
         <select className="form-select appearance-none
